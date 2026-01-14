@@ -23,9 +23,19 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 
 # ------------------------------
+# Notwendige Systembibliotheken für PostgreSQL/SSL installieren
+# ------------------------------
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        libssl-dev \
+        libkrb5-dev \
+        && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------
 # Build-Ergebnisse kopieren
 # ------------------------------
-COPY --from=build /app/out .
+COPY --from=build /app/out ./
 
 # ------------------------------
 # Container-Umgebung einstellen
