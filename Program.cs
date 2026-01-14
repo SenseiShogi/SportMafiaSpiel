@@ -16,31 +16,32 @@ namespace SportMafiaSpiel
 
             // ------------------------------
             // Verbindung zur PostgreSQL-Datenbank:
-            // Zuerst prüft Environment Variable, dann appsettings.json
+            // Zuerst prüft Environment Variable, sonst wird Render DB direkt genutzt
             // ------------------------------
             string? connectionString = Environment.GetEnvironmentVariable("SPORTMAFIASPIELDB")
-                                     ?? builder.Configuration.GetConnectionString("SportMafiaSpielDB");
+                                     ?? "Host=dpg-d5jkmsali9vc73bh94vg-a;Database=sportmafiaspiel_db;Username=sportmafiaspiel_db_user;Password=hfNx3dA3mMDtJz57sjm4AO4RYhonlR6S;Port=5432;SSL Mode=Require;Trust Server Certificate=true;Pooling=true;";
 
             // ------------------------------
-            // Lokaler Testmodus: keine echte Datenbank
+            // Dummy-Modus für lokale Tests
             // ------------------------------
             bool useDummyDatabase = false;
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 useDummyDatabase = true;
-                Console.WriteLine("WARNUNG: Environment Variable 'SPORTMAFIASPIELDB' nicht gesetzt. Verwende Dummy-Datenbank für lokalen Test.");
+                Console.WriteLine("WARNUNG: Keine ENV Variable 'SPORTMAFIASPIELDB' gefunden. Dummy-Datenbank wird verwendet.");
                 connectionString = "Host=localhost;Database=dummy;Username=dummy;Password=dummy;";
             }
 
             // ------------------------------
-            // DbContext hinzufügen (PostgreSQL)
+            // DbContext konfigurieren
             // ------------------------------
             builder.Services.AddDbContext<SportMafiaSpielContext>(options =>
             {
                 options.UseNpgsql(connectionString);
+
                 if (useDummyDatabase)
                 {
-                    // Verhindert Migrationsversuche auf Dummy-Datenbank
+                    // Dummy-Modus: keine Migrationen, Logging aktiviert
                     options.EnableSensitiveDataLogging();
                 }
             });
@@ -58,7 +59,7 @@ namespace SportMafiaSpiel
             app.MapGet("/health", () => "SportMafiaSpiel Backend läuft!");
 
             // ------------------------------
-            // Test-Endpunkt, um DB-Verbindung zu prüfen
+            // Test-Endpunkt für DB-Verbindung
             // ------------------------------
             app.MapGet("/test-db", async (SportMafiaSpielContext db) =>
             {
@@ -85,14 +86,22 @@ namespace SportMafiaSpiel
             app.MapControllers();
 
             // ------------------------------
-            // Automatische Migrationen anwenden
+            // Automatische Migrationen nur für echte DB
             // ------------------------------
             if (!useDummyDatabase)
             {
-                using (var scope = app.Services.CreateScope())
+                try
                 {
-                    var db = scope.ServiceProvider.GetRequiredService<SportMafiaSpielContext>();
-                    db.Database.Migrate();
+                    using (var scope = app.Services.CreateScope())
+                    {
+                        var db = scope.ServiceProvider.GetRequiredService<SportMafiaSpielContext>();
+                        db.Database.Migrate();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("FEHLER: Migrationen konnten nicht angewendet werden: " + ex.Message);
+                    throw;
                 }
             }
 
