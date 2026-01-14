@@ -14,7 +14,7 @@ RUN dotnet restore
 # gesamten Code kopieren und veröffentlichen
 # ------------------------------
 COPY . ./
-RUN dotnet publish SportMafiaSpiel.csproj -c Release -o out
+RUN dotnet publish -c Release -o /app/out
 
 # ------------------------------
 # 2. Runtime-Stage
@@ -25,16 +25,16 @@ WORKDIR /app
 # ------------------------------
 # Build-Ergebnisse kopieren
 # ------------------------------
-COPY --from=build /app/out ./
+COPY --from=build /app/out .
 
 # ------------------------------
-# .NET im Container-Modus
+# Container-Umgebung einstellen
 # ------------------------------
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 ENV ASPNETCORE_URLS=http://0.0.0.0:10000
 
 # ------------------------------
-# Port für Render freigeben
+# Render-Port freigeben
 # ------------------------------
 EXPOSE 10000
 
