@@ -134,3 +134,9 @@ C:\Users\sense\VSCode\SportMafiaSpiel\obj\Debug\net10.0\refint\SportMafiaSpiel.d
 C:\Users\sense\VSCode\SportMafiaSpiel\obj\Debug\net10.0\SportMafiaSpiel.pdb
 C:\Users\sense\VSCode\SportMafiaSpiel\obj\Debug\net10.0\SportMafiaSpiel.genruntimeconfig.cache
 C:\Users\sense\VSCode\SportMafiaSpiel\obj\Debug\net10.0\ref\SportMafiaSpiel.dll
+C:\Users\sense\VSCode\SportMafiaSpiel\bin\Debug\net10.0\publish\web.config
+C:\Users\sense\VSCode\SportMafiaSpiel\bin\Debug\net10.0\publish\appsettings.Development.json
+C:\Users\sense\VSCode\SportMafiaSpiel\bin\Debug\net10.0\publish\appsettings.json
+C:\Users\sense\VSCode\SportMafiaSpiel\bin\Debug\net10.0\publish\SportMafiaSpiel.deps.json
+C:\Users\sense\VSCode\SportMafiaSpiel\bin\Debug\net10.0\publish\SportMafiaSpiel.runtimeconfig.json
+C:\Users\sense\VSCode\SportMafiaSpiel\bin\Debug\net10.0\publish\SportMafiaSpiel.staticwebassets.endpoints.json
