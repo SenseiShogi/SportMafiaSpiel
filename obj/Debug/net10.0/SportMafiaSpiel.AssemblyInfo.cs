@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SportMafiaSpiel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f86ea5f497b18b5d29c2a37d9f55d9f9d3712f65")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+70a010ffdb1a112dca9223958456cda73ba1e84f")]
 [assembly: System.Reflection.AssemblyProductAttribute("SportMafiaSpiel")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SportMafiaSpiel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
