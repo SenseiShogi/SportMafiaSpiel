@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace SportMafiaSpiel.Controllers
 {
     [ApiController]
-    [Route("/")] // Корневой путь
+    [Route("/")]
     public class HomeController : ControllerBase
     {
         // GET /

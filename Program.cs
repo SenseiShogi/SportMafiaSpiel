@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SportMafiaSpiel;
-using SportMafiaSpiel.Models;
 
 namespace SportMafiaSpiel
 {
@@ -14,61 +13,40 @@ namespace SportMafiaSpiel
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // ------------------------------
-            // DbContext hinzufügen (PostgreSQL-Verbindung)
-            // ------------------------------
+            // DbContext (PostgreSQL)
             builder.Services.AddDbContext<SportMafiaSpielContext>(options =>
                 options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("SportMafiaSpielDB")));
+                    builder.Configuration.GetConnectionString("SportMafiaSpielDB"),
+                    npgsqlOptions =>
+                    {
+                        npgsqlOptions.EnableRetryOnFailure();
+                    }
+                )
+            );
 
-            // ------------------------------
-            // Controller hinzufügen
-            // ------------------------------
             builder.Services.AddControllers();
 
             var app = builder.Build();
 
-            // ------------------------------
-            // Health check-Endpunkt für Render
-            // ------------------------------
             app.MapGet("/", () => "SportMafiaSpiel Backend is running!");
 
-            // ------------------------------
-            // Optional: Test-Endpunkt, um DB-Verbindung zu prüfen
-            // ------------------------------
-            app.MapGet("/test-db", async (SportMafiaSpielContext db) =>
-            {
-                var userCount = await db.Users.CountAsync();
-                return $"Benutzer in der DB: {userCount}";
-            });
-
-            // ------------------------------
-            // HTTPS-Weiterleitung aktivieren
-            // ------------------------------
             app.UseHttpsRedirection();
-
-            // ------------------------------
-            // Authorization Middleware (Platzhalter)
-            // ------------------------------
             app.UseAuthorization();
-
-            // ------------------------------
-            // Controller-Routen aktivieren
-            // ------------------------------
             app.MapControllers();
 
-            // ------------------------------
-            // Automatische Anwendung der Migrations auf PostgreSQL
-            // ------------------------------
+            // Apply migrations
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<SportMafiaSpielContext>();
                 db.Database.Migrate();
             }
 
-            // ------------------------------
-            // Anwendung starten
-            // ------------------------------
+            app.MapGet("/test-db", async (SportMafiaSpielContext db) =>
+            {
+                var userCount = await db.Users.CountAsync();
+                return $"Users in DB: {userCount}";
+            });
+
             app.Run();
         }
     }
