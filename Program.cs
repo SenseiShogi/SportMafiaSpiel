@@ -25,31 +25,56 @@ namespace SportMafiaSpiel
                 throw new Exception("Connection-String für PostgreSQL nicht gefunden! Setze ihn in appsettings.json oder als Environment Variable 'SPORTMAFIASPIELDB'.");
             }
 
+            // ------------------------------
+            // DbContext hinzufügen (PostgreSQL)
+            // ------------------------------
             builder.Services.AddDbContext<SportMafiaSpielContext>(options =>
                 options.UseNpgsql(connectionString));
 
+            // ------------------------------
+            // Controller hinzufügen
+            // ------------------------------
             builder.Services.AddControllers();
 
             var app = builder.Build();
 
-            app.MapGet("/", () => "SportMafiaSpiel Backend läuft!");
+            // ------------------------------
+            // Health-Check-Endpunkt
+            // ------------------------------
+            app.MapGet("/health", () => "SportMafiaSpiel Backend läuft!");
 
+            // ------------------------------
+            // Test-Endpunkt, um DB-Verbindung zu prüfen
+            // ------------------------------
             app.MapGet("/test-db", async (SportMafiaSpielContext db) =>
             {
                 var userCount = await db.Users.CountAsync();
                 return $"Benutzer in der DB: {userCount}";
             });
 
+            // ------------------------------
+            // HTTPS-Weiterleitung und Authorization
+            // ------------------------------
             app.UseHttpsRedirection();
             app.UseAuthorization();
+
+            // ------------------------------
+            // Controller-Routen aktivieren
+            // ------------------------------
             app.MapControllers();
 
+            // ------------------------------
+            // Automatische Migrationen anwenden
+            // ------------------------------
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<SportMafiaSpielContext>();
                 db.Database.Migrate();
             }
 
+            // ------------------------------
+            // Anwendung starten
+            // ------------------------------
             app.Run();
         }
     }
