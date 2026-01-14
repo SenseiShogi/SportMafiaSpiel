@@ -15,10 +15,10 @@ namespace SportMafiaSpiel
             var builder = WebApplication.CreateBuilder(args);
 
             // ------------------------------
-            // DbContext hinzufügen (Datenbankverbindung)
+            // DbContext hinzufügen (PostgreSQL-Verbindung)
             // ------------------------------
             builder.Services.AddDbContext<SportMafiaSpielContext>(options =>
-                options.UseSqlServer(
+                options.UseNpgsql(
                     builder.Configuration.GetConnectionString("SportMafiaSpielDB")));
 
             // ------------------------------
@@ -26,22 +26,21 @@ namespace SportMafiaSpiel
             // ------------------------------
             builder.Services.AddControllers();
 
-            // ------------------------------
-            // Swagger für API-Dokumentation hinzufügen
-            // ------------------------------
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
             var app = builder.Build();
 
             // ------------------------------
-            // Swagger UI nur im Entwicklungsmodus aktivieren
+            // Health check-Endpunkt für Render
             // ------------------------------
-            if (app.Environment.IsDevelopment())
+            app.MapGet("/", () => "SportMafiaSpiel Backend is running!");
+
+            // ------------------------------
+            // Optional: Test-Endpunkt, um DB-Verbindung zu prüfen
+            // ------------------------------
+            app.MapGet("/test-db", async (SportMafiaSpielContext db) =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                var userCount = await db.Users.CountAsync();
+                return $"Benutzer in der DB: {userCount}";
+            });
 
             // ------------------------------
             // HTTPS-Weiterleitung aktivieren
@@ -59,13 +58,13 @@ namespace SportMafiaSpiel
             app.MapControllers();
 
             // ------------------------------
-            // Test-Endpunkt, um DB-Verbindung zu prüfen
+            // Automatische Anwendung der Migrations auf PostgreSQL
             // ------------------------------
-            app.MapGet("/test-db", async (SportMafiaSpielContext db) =>
+            using (var scope = app.Services.CreateScope())
             {
-                var userCount = await db.Users.CountAsync();
-                return $"Benutzer in der DB: {userCount}";
-            });
+                var db = scope.ServiceProvider.GetRequiredService<SportMafiaSpielContext>();
+                db.Database.Migrate();
+            }
 
             // ------------------------------
             // Anwendung starten
